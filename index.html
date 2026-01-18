@@ -141,7 +141,8 @@ document.getElementById('loadingDiv').style.display = 'none';
 }, 1000);
 }
 function detectChapters(text) {
-const chapterRegex = /(Chapter|CHAPTER|Ch\.|ch\.)\s*(\d+|[IVXLCDM]+)/gi;
+  // IMPROVED: Only match chapter headings at start of line
+const chapterRegex = /^(CHAPTER)\s+(\d+)/gim;
 const matches = [...text.matchAll(chapterRegex)];
 if (matches.length === 0) { return [{title: 'Full Manuscript', start: 0, end: text.length, content: text}]; }
 const detectedChapters = [];
@@ -204,7 +205,12 @@ function displayChapter(index) {
 currentChapter = index;
 const originalChapterContent = chapters[index].content;
 const editedChapterContent = performEditing(originalChapterContent);
-document.getElementById('originalText').textContent = originalChapterContent;
+// OLD - strips formatting: document.getElementById('originalText').textContent = originalChapterContent;
+  // FIXED: Preserve paragraph formatting
+const formattedOriginal = originalChapterContent.replace(/\n\n+/g, '</p><p>').replace(/\n/g, '<br>');
+const formattedEdited = editedChapterContent.replace(/\n\n+/g, '</p><p>').replace(/\n/g, '<br>');
+document.getElementById('originalText').innerHTML = '<p>' + formattedOriginal + '</p>';
+document.getElementById('editedText').innerHTML = '<p>' + formattedEdited + '</p>';
 document.getElementById('editedText').textContent = editedChapterContent;
 const chapterBtns = document.querySelectorAll('.chapter-btn');
 chapterBtns.forEach((btn, i) => {
